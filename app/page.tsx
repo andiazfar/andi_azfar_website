@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, MotionConfig } from "motion/react";
+import Typewriter from "./components/typewriter";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -53,9 +54,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: EASE }}
-              className="max-w-md text-lg text-zinc-400 sm:text-xl"
+              className="min-h-8 max-w-md text-lg text-zinc-400 sm:text-xl"
             >
-              Problem Solving Enjoyer
+              <Typewriter />
             </motion.p>
 
             <motion.a
