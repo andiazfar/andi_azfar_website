@@ -51,3 +51,6 @@ AGENTS.local.md
 # logs written by dev.cmd / build.cmd
 .dev-server.log
 .build.log
+
+# screenshots written by preview.cmd
+/previews

@@ -20,7 +20,7 @@ const links = [
 export default function Home() {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-full overflow-hidden bg-[#08090a] text-zinc-100">
+      <div className="relative min-h-dvh overflow-hidden bg-[#08090a] text-zinc-100">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -54,7 +54,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: EASE }}
-              className="min-h-8 max-w-md text-lg text-zinc-400 sm:text-xl"
+              className="h-8 max-w-md overflow-hidden text-lg text-zinc-400 sm:text-xl"
             >
               <Typewriter />
             </motion.p>

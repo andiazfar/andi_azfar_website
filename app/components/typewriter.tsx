@@ -126,7 +126,7 @@ export default function Typewriter({ className = "" }: { className?: string }) {
       onMouseLeave={handleLeave}
     >
       <span className="sr-only">{DEFAULT_PHRASE}</span>
-      <span aria-hidden className="inline-flex min-h-[1.6em] items-center">
+      <span aria-hidden className="inline-flex h-[1.6em] items-center whitespace-nowrap">
         <span>{text}</span>
         <span className="ml-0.5 inline-block h-[0.9em] w-[2px] translate-y-[0.08em] animate-blink bg-zinc-500 align-middle" />
       </span>
