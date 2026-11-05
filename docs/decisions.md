@@ -64,3 +64,11 @@ Container bases: smallest image that works, but compatibility beats byte count.
 Using `node:slim` rather than Alpine musl images unless a real size constraint appears.
 Rejected: Alpine-by-default (saves ~40MB, risks subtle native-dependency failures);
 rejected: pre-emptive abstraction, queues, caches, microservices or Kubernetes.
+
+## D-011 — Motion (motion.dev) for animation
+Status: Accepted
+Use the `motion` package (Motion, formerly Framer Motion) for entrance, scroll-reveal and
+hover animation. `MotionConfig reducedMotion="user"` respects the OS setting.
+Kept to three patterns on purpose: heavy animation makes a personal site feel cheap.
+Rejected: hand-rolled CSS keyframes (no scroll orchestration, no stagger);
+rejected: 3D libraries (weight without purpose here).

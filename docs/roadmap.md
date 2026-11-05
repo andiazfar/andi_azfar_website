@@ -17,9 +17,11 @@ Local first. Nothing is rented or deployed until M1 shows a working site in a br
 - [ ] Nightly backups running and verified
 
 ## M3 — Site content
-- [ ] Landing page and about section
-- [ ] Hub page listing projects (the registry)
+- [x] Landing page: hero, projects grid, footer
+- [x] Motion animations: entrance, scroll reveal, hover lift
+- [ ] About section
 - [ ] Responsive layout, checked in a browser
+- [ ] Hub page listing projects (the registry)
 
 ## M4 — Login
 - [ ] Sign-up, sign-in, sign-out
