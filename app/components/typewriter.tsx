@@ -8,7 +8,7 @@ const DEFAULT_PHRASE = "Problem Solving Enjoyer";
 // The intro cycles on load and settles on the default.
 const INTRO = ["ML Enthusiast", "Product Manager", "Marketing Noob", DEFAULT_PHRASE];
 
-// After load, hovering picks one of these at random.
+// Hovering rotates through all of these.
 const PHRASES = [
   ...INTRO,
   "Coffee-Fuelled Builder",
@@ -19,10 +19,10 @@ const PHRASES = [
   "Learning in Public",
 ];
 
-const TYPE_MS = 62;
-const ERASE_MS = 30;
-const HOLD_MS = 1150;
-const GAP_MS = 260;
+const TYPE_MS = 38;
+const ERASE_MS = 18;
+const HOLD_MS = 620;
+const GAP_MS = 120;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -66,7 +66,15 @@ export default function Typewriter({ className = "" }: { className?: string }) {
   };
 
   useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const run = ++runRef.current;
+
+    if (reduce) {
+      commit(DEFAULT_PHRASE);
+      return () => {
+        runRef.current += 1;
+      };
+    }
 
     (async () => {
       for (let i = 0; i < INTRO.length; i++) {
@@ -83,37 +91,42 @@ export default function Typewriter({ className = "" }: { className?: string }) {
     return () => {
       runRef.current += 1;
     };
-    // Runs once on mount; commit is stable enough for the lifetime of the component.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cycleTo = async (target: string) => {
+  // While the pointer stays on the phrase, keep rotating through all ten.
+  const rotate = async (run: number) => {
+    while (runRef.current === run) {
+      const pool = PHRASES.filter((phrase) => phrase !== liveRef.current);
+      const next = pool[Math.floor(Math.random() * pool.length)];
+
+      if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
+      if (!(await typeInto(next, run, runRef, commit))) return;
+      await wait(HOLD_MS);
+    }
+  };
+
+  const handleEnter = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    void rotate(++runRef.current);
+  };
+
+  const handleLeave = () => {
     const run = ++runRef.current;
-    if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
-    await typeInto(target, run, runRef, commit);
-  };
-
-  const handleSurprise = () => {
-    const pool = PHRASES.filter((phrase) => phrase !== liveRef.current);
-    const next = pool[Math.floor(Math.random() * pool.length)];
-    void cycleTo(next);
-  };
-
-  const handleReset = () => {
-    if (liveRef.current === DEFAULT_PHRASE) return;
-    void cycleTo(DEFAULT_PHRASE);
+    void (async () => {
+      if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
+      await typeInto(DEFAULT_PHRASE, run, runRef, commit);
+    })();
   };
 
   return (
     <span
-      className={className}
-      onMouseEnter={handleSurprise}
-      onMouseLeave={handleReset}
-      onFocus={handleSurprise}
-      onBlur={handleReset}
+      className={`inline-block w-full cursor-default ${className}`}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
     >
       <span className="sr-only">{DEFAULT_PHRASE}</span>
-      <span aria-hidden>
+      <span aria-hidden className="inline-flex min-h-[1.6em] items-center">
         <span>{text}</span>
         <span className="ml-0.5 inline-block h-[0.9em] w-[2px] translate-y-[0.08em] animate-blink bg-zinc-500 align-middle" />
       </span>
