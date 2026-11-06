@@ -54,3 +54,7 @@ AGENTS.local.md
 
 # screenshots written by preview.cmd
 /previews
+
+# one-time database setup secret
+.db-setup.txt
+.db-credentials.txt
