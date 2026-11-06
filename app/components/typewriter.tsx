@@ -20,7 +20,7 @@ const PHRASES = [
 ];
 
 const TYPE_MS = 38;
-const ERASE_MS = 8;
+const ERASE_MS = 14;
 const HOLD_MS = 620;
 const GAP_MS = 120;
 const CHARS_PER_ERASE = 2;
