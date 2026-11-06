@@ -20,9 +20,10 @@ const PHRASES = [
 ];
 
 const TYPE_MS = 38;
-const ERASE_MS = 18;
+const ERASE_MS = 8;
 const HOLD_MS = 620;
 const GAP_MS = 120;
+const CHARS_PER_ERASE = 2;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -46,10 +47,11 @@ async function eraseAll(
   read: () => string,
   commit: (value: string) => void
 ) {
-  const current = read();
-  for (let i = current.length; i >= 0; i--) {
+  let current = read();
+  while (current.length > 0) {
     if (runRef.current !== run) return false;
-    commit(current.slice(0, i));
+    current = current.slice(0, Math.max(0, current.length - CHARS_PER_ERASE));
+    commit(current);
     await wait(ERASE_MS);
   }
   return true;
@@ -59,6 +61,9 @@ export default function Typewriter({ className = "" }: { className?: string }) {
   const [text, setText] = useState("");
   const runRef = useRef(0);
   const liveRef = useRef("");
+  // A sequence in progress owns the span; hover is ignored until it finishes.
+  const busyRef = useRef(false);
+  const hoveredRef = useRef(false);
 
   const commit = (value: string) => {
     liveRef.current = value;
@@ -77,15 +82,17 @@ export default function Typewriter({ className = "" }: { className?: string }) {
     }
 
     (async () => {
+      busyRef.current = true;
       for (let i = 0; i < INTRO.length; i++) {
         if (!(await typeInto(INTRO[i], run, runRef, commit))) return;
-        if (i === INTRO.length - 1) return;
+        if (i === INTRO.length - 1) break;
         await wait(HOLD_MS);
         if (runRef.current !== run) return;
         if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
         await wait(GAP_MS);
         if (runRef.current !== run) return;
       }
+      busyRef.current = false;
     })();
 
     return () => {
@@ -94,29 +101,39 @@ export default function Typewriter({ className = "" }: { className?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // While the pointer stays on the phrase, keep rotating through all ten.
-  const rotate = async (run: number) => {
-    while (runRef.current === run) {
-      const pool = PHRASES.filter((phrase) => phrase !== liveRef.current);
-      const next = pool[Math.floor(Math.random() * pool.length)];
-
-      if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
-      if (!(await typeInto(next, run, runRef, commit))) return;
-      await wait(HOLD_MS);
-    }
-  };
-
   const handleEnter = () => {
+    // Mid-sequence: let it finish rather than restarting from scratch.
+    if (busyRef.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    void rotate(++runRef.current);
+
+    hoveredRef.current = true;
+    const run = ++runRef.current;
+
+    (async () => {
+      busyRef.current = true;
+
+      while (hoveredRef.current && runRef.current === run) {
+        const pool = PHRASES.filter((phrase) => phrase !== liveRef.current);
+        const next = pool[Math.floor(Math.random() * pool.length)];
+
+        if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) break;
+        if (!(await typeInto(next, run, runRef, commit))) break;
+        await wait(HOLD_MS);
+      }
+
+      // Pointer left during a phrase: finish it, then settle back to the default.
+      if (!hoveredRef.current && runRef.current === run) {
+        if (await eraseAll(run, runRef, () => liveRef.current, commit)) {
+          await typeInto(DEFAULT_PHRASE, run, runRef, commit);
+        }
+      }
+
+      busyRef.current = false;
+    })();
   };
 
   const handleLeave = () => {
-    const run = ++runRef.current;
-    void (async () => {
-      if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) return;
-      await typeInto(DEFAULT_PHRASE, run, runRef, commit);
-    })();
+    hoveredRef.current = false;
   };
 
   return (
