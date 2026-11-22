@@ -72,3 +72,28 @@ hover animation. `MotionConfig reducedMotion="user"` respects the OS setting.
 Kept to three patterns on purpose: heavy animation makes a personal site feel cheap.
 Rejected: hand-rolled CSS keyframes (no scroll orchestration, no stagger);
 rejected: 3D libraries (weight without purpose here).
+
+## D-012 — Public site is static, hosted on GitHub Pages (supersedes D-004 for this site)
+Status: Accepted (2026-11-22)
+The public site (landing page, links, world time, NFC `/card` page) is exported as static
+files and hosted free on GitHub Pages, deployed by GitHub Actions on push to `main`.
+It holds no secrets and no database. Cost: 0.
+Rejected: serving the public site from the droplet (adds cost and upkeep for no gain).
+
+## D-013 — Login and database live in separate apps on the droplet
+Status: Accepted (2026-11-22)
+Login and PostgreSQL are still wanted, but they belong to projects deployed on the
+DigitalOcean droplet (D-008), each on its own subdomain (D-007). The static site only
+links to them. D-004 and D-008 remain valid for those apps, not for the public site.
+
+## D-014 — No resume file in the repo; link to Google Drive
+Status: Accepted (2026-11-22)
+Resume and documents are Google Drive links; access is controlled on the Drive side.
+Nothing personal is committed to the public repo.
+Rejected: committing a resume PDF (public forever in git history).
+
+## D-015 — Start on github.io, move to a custom domain later
+Status: Accepted (2026-11-22)
+Get online first on the free `<user>.github.io` address. D-006 (domain) stays open.
+Risk: do not write the NFC card until the final domain is chosen, since the URL on a
+handed-out card cannot be changed.
