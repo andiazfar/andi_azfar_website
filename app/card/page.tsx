@@ -32,7 +32,14 @@ export default function CardPage() {
             "radial-gradient(40rem 30rem at 50% -10%, rgba(120,140,180,0.14), transparent 70%)",
         }}
       />
-      <main className="relative mx-auto flex w-full max-w-md flex-col px-6 py-14">
+      <main className="relative mx-auto flex w-full max-w-md flex-col gap-8 px-6 py-14">
+        <Link
+          href="/"
+          className="inline-flex w-fit items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-white"
+        >
+          <span aria-hidden>&larr;</span>
+          Back to main page
+        </Link>
         <nav className="flex flex-col gap-3" aria-label="Links">
           {links
             .filter((l) => l.href)
