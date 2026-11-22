@@ -37,3 +37,5 @@ Local first. Nothing is rented or deployed until M1 shows a working site in a br
 ## Backlog
 - Time-zone tool: quick view of times across the places I work with
 - Park/unpark a POC from the hub
+- Browse motion.dev for more animation ideas (source of the typewriter effect) and pick
+  a few to add. Keep to the "few patterns, not heavy" rule in D-011.

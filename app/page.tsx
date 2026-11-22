@@ -32,15 +32,6 @@ export default function Home() {
 
         <main className="relative mx-auto flex w-full max-w-3xl flex-col gap-24 px-6 py-24 sm:gap-32 sm:py-32">
           <section className="flex flex-col gap-5">
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500"
-            >
-              Portfolio
-            </motion.p>
-
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -153,9 +144,8 @@ export default function Home() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-4 border-t border-zinc-900 pt-8 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-4 border-t border-zinc-900 pt-8 sm:flex-row sm:items-center sm:justify-end"
           >
-            <p className="text-sm text-zinc-500">Andi Azfar Arif</p>
             <div className="flex flex-wrap items-center gap-5 text-sm">
               {links.map((link) =>
                 link.href ? (
