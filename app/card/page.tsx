@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 // Order on the page. Entries with no href are hidden until a URL is filled in.
 const links: { label: string; sub: string; href: string | null }[] = [
-  { label: "LinkedIn", sub: "Connect", href: null },
+  { label: "LinkedIn", sub: "andi-azfar-arif", href: "https://www.linkedin.com/in/andi-azfar-arif/" },
   { label: "GitHub", sub: "andiazfar", href: "https://github.com/andiazfar" },
 ];
 
