@@ -24,6 +24,11 @@ const ERASE_MS = 14;
 const HOLD_MS = 620;
 const GAP_MS = 120;
 const CHARS_PER_ERASE = 2;
+// Hover: how long a phrase stays before the next one while the pointer is still on it,
+// and how long the last phrase stays after the pointer leaves before resetting.
+const HOVER_HOLD_MS = 2200;
+const LEAVE_LINGER_MS = 2000;
+const POLL_MS = 100;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -61,9 +66,13 @@ export default function Typewriter({ className = "" }: { className?: string }) {
   const [text, setText] = useState("");
   const runRef = useRef(0);
   const liveRef = useRef("");
-  // A sequence in progress owns the span; hover is ignored until it finishes.
+  // The intro owns the span; hover is ignored until it finishes.
   const busyRef = useRef(false);
   const hoveredRef = useRef(false);
+  // True from the first hover phrase until the reset to the default completes.
+  const loopActiveRef = useRef(false);
+  const shownAtRef = useRef(0);
+  const leftAtRef = useRef(0);
 
   const commit = (value: string) => {
     liveRef.current = value;
@@ -102,38 +111,58 @@ export default function Typewriter({ className = "" }: { className?: string }) {
   }, []);
 
   const handleEnter = () => {
-    // Mid-sequence: let it finish rather than restarting from scratch.
+    // The intro owns the span until it finishes.
     if (busyRef.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     hoveredRef.current = true;
+    shownAtRef.current = Date.now();
+    // Re-entered while the phrase was still lingering: keep it, cancel the reset.
+    if (loopActiveRef.current) return;
+
     const run = ++runRef.current;
+    loopActiveRef.current = true;
 
     (async () => {
-      busyRef.current = true;
+      let finished = true;
 
-      while (hoveredRef.current && runRef.current === run) {
+      while (true) {
         const pool = PHRASES.filter((phrase) => phrase !== liveRef.current);
         const next = pool[Math.floor(Math.random() * pool.length)];
 
-        if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) break;
-        if (!(await typeInto(next, run, runRef, commit))) break;
-        await wait(HOLD_MS);
-      }
+        if (!(await eraseAll(run, runRef, () => liveRef.current, commit))) { finished = false; break; }
+        if (!(await typeInto(next, run, runRef, commit))) { finished = false; break; }
+        shownAtRef.current = Date.now();
 
-      // Pointer left during a phrase: finish it, then settle back to the default.
-      if (!hoveredRef.current && runRef.current === run) {
-        if (await eraseAll(run, runRef, () => liveRef.current, commit)) {
-          await typeInto(DEFAULT_PHRASE, run, runRef, commit);
+        // Hold the phrase: while hovered, until it is time for the next one;
+        // after the pointer leaves, linger a moment, then reset to the default.
+        let leaveAndReset = false;
+        while (true) {
+          await wait(POLL_MS);
+          if (runRef.current !== run) { finished = false; break; }
+          const now = Date.now();
+          if (hoveredRef.current && now - shownAtRef.current >= HOVER_HOLD_MS) break;
+          if (!hoveredRef.current && now - leftAtRef.current >= LEAVE_LINGER_MS) {
+            leaveAndReset = true;
+            break;
+          }
+        }
+        if (!finished) break;
+        if (leaveAndReset) {
+          if (await eraseAll(run, runRef, () => liveRef.current, commit)) {
+            await typeInto(DEFAULT_PHRASE, run, runRef, commit);
+          }
+          break;
         }
       }
 
-      busyRef.current = false;
+      loopActiveRef.current = false;
     })();
   };
 
   const handleLeave = () => {
     hoveredRef.current = false;
+    leftAtRef.current = Date.now();
   };
 
   return (
